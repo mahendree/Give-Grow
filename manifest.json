@@ -1,0 +1,12 @@
+{
+  "name": "Give & Grow",
+  "short_name": "Give & Grow",
+  "description": "Free food & clothes for everyone",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0d1f17",
+  "theme_color": "#22a16a",
+  "icons": [
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
