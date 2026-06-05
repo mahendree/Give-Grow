@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Give & Grow — Free food & clothes for everyone</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#22a16a">
+  <meta name="description"
+    content=" Give & Grow— Community platform to donate food and clothes to those in need. Connect donors with NGOs.">
+  <meta property="og:title" content="Give & Grow — Free food & clothes for everyone">
+  <meta property="og:description" content="Donate surplus food or clothing. Track deliveries. Help your community.">
+  <meta property="og:type" content="website">
+</head>
+
+<body>
+
+  <noscript>
+    <div style="background:#e85454;color:#fff;padding:1rem;text-align:center;font-family:sans-serif">
+      ⚠️ JavaScript is required to run Give & Grow. Please enable JS in your browser.
+    </div>
+  </noscript>
+
+  <!-- NAVBAR -->
+  <nav id="navbar">
+    <div class="nav-brand">
+      <div class="leaf">🍃</div>
+      <div>
+        <span class="brand-name">Give & Grow</span>
+        <small>Free food &amp; clothes for everyone</small>
+      </div>
+    </div>
+    <div class="nav-links" id="navbar-links">
+      <a onclick="showPage('dashboard')" id="nav-dashboard" class="active">🏠 Home</a>
+      <a onclick="showPage('donate')" id="nav-donate">🤝 Donate</a>
+      <a onclick="showPage('proof')" id="nav-proof">✅ Proof</a>
+      <a onclick="showPage('jobs')" id="nav-jobs">💼 Jobs</a>
+      <a onclick="showPage('admin')" id="nav-admin">🏢 NGO Panel</a>
+      <a onclick="showPage('delivery')" id="nav-delivery" class="hidden">🚴 Delivery Panel</a>
+      <a onclick="showPage('track')" id="nav-track">🚚 Track</a>
+    </div>
+    <div class="nav-right">
+      <div class="stat-pills">
+        <span class="stat-pill">🍱 <strong id="nav-meals">142</strong> Meals</span>
+        <span class="stat-pill">👕 <strong id="nav-clothes">38</strong> Clothes</span>
+      </div>
+      <div class="ai-settings-btn" onclick="openModal('modal-ai-settings')" title="Gemini AI Settings" style="margin-right: 8px;">
+        🤖
+      </div>
+      <div class="notif-btn" onclick="toggleNotifs()" id="notif-btn">
+        🔔
+        <span class="notif-dot" id="notif-dot"></span>
+      </div>
+      <!-- Auth Profile Section -->
+      <div id="nav-auth-section" class="profile-container">
+        <button class="btn btn-outline btn-sm" onclick="showPage('auth')">🔑 Log In</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HAMBURGER (mobile) -->
+  <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()">☰</button>
+  <div class="mobile-menu" id="mobile-menu">
+    <div id="mobile-menu-links">
+      <a onclick="showPage('dashboard');closeMobileMenu()">🏠 Home</a>
+      <a onclick="showPage('donate');closeMobileMenu()" id="mob-donate">🤝 Donate</a>
+      <a onclick="showPage('proof');closeMobileMenu()">✅ Proof</a>
+      <a onclick="showPage('jobs');closeMobileMenu()">💼 Jobs</a>
+      <a onclick="showPage('admin');closeMobileMenu()" id="mob-admin">🏢 NGO Panel</a>
+      <a onclick="showPage('delivery');closeMobileMenu()" id="mob-delivery" class="hidden">🚴 Delivery Panel</a>
+      <a onclick="showPage('track');closeMobileMenu()">🚚 Track</a>
+    </div>
+    <div style="border-top:1px solid var(--border);margin-top:8px;padding-top:8px;" id="mobile-auth-section">
+      <a onclick="showPage('auth');closeMobileMenu()">🔑 Log In</a>
+    </div>
+  </div>
+
+  <!-- NOTIFICATION PANEL -->
+  <div class="notif-panel" id="notif-panel">
+    <div class="notif-header">
+      <h3>Notifications</h3>
+      <button onclick="markAllRead()" class="mark-read-btn">Mark all read</button>
+    </div>
+    <div id="notif-list"></div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- ======================================================
+     MODALS
+====================================================== -->
+  <!-- Apply Modal -->
+  <div class="modal-overlay" id="modal-apply">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal('modal-apply')">✕</button>
+      <h2 id="apply-job-title">Apply for Delivery Partner</h2>
+      <p class="modal-sub">Fill in your details. We'll contact you within 24 hours.</p>
+      <div class="form-group"><label>Full name *</label><input type="text" id="apply-name" placeholder="Your full name">
+      </div>
+      <div class="form-group"><label>Phone number *</label><input type="tel" id="apply-phone"
+          placeholder="+91 XXXXX XXXXX"></div>
+      <div class="form-group"><label>Email</label><input type="email" id="apply-email" placeholder="your@email.com">
+      </div>
+      <div class="form-group"><label>Area / City *</label><input type="text" id="apply-area"
+          placeholder="Durgapur, West Bengal"></div>
+      <div class="form-group"><label>Why do you want this role?</label><textarea id="apply-reason"
+          placeholder="Brief motivation (optional)..."></textarea></div>
+      <button class="btn btn-primary btn-full" onclick="submitApplication()">Submit Application →</button>
+    </div>
+  </div>
+
+  <!-- Refer Modal -->
+  <div class="modal-overlay" id="modal-refer">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal('modal-refer')">✕</button>
+      <h2>Refer a Friend 👥</h2>
+      <p class="modal-sub">Share this referral and help someone get a job opportunity.</p>
+      <div class="refer-code" id="refer-code-display">BAN-4829</div>
+      <div class="form-group"><label>Friend's name</label><input type="text" id="refer-name" placeholder="Enter name">
+      </div>
+      <div class="form-group"><label>Friend's phone</label><input type="tel" id="refer-phone"
+          placeholder="+91 XXXXX XXXXX"></div>
+      <div class="form-group"><label>Job position</label>
+        <select id="refer-job">
+          <option>Delivery Partner</option>
+          <option>NGO Coordinator</option>
+          <option>App Volunteer</option>
+          <option>Food Sorter</option>
+        </select>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="submitRefer()">Send Referral →</button>
+    </div>
+  </div>
+
+  <!-- Proof Detail Modal -->
+  <div class="modal-overlay" id="modal-proof-detail">
+    <div class="modal modal-wide">
+      <button class="modal-close" onclick="closeModal('modal-proof-detail')">✕</button>
+      <div id="proof-detail-content"></div>
+    </div>
+  </div>
+
+  <!-- AI Settings Modal -->
+  <div class="modal-overlay" id="modal-ai-settings">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal('modal-ai-settings')">✕</button>
+      <h2>Gemini AI Settings 🤖</h2>
+      <p class="modal-sub">Configure Gemini API Key for real-time vision verification.</p>
+      <div class="form-group">
+        <label>Gemini API Key</label>
+        <div class="input-with-icon">
+          <span class="input-icon">🔑</span>
+          <input type="password" id="gemini-api-key" placeholder="AIzaSy...">
+        </div>
+        <small class="muted" style="margin-top: 6px; display: block; line-height: 1.4;">
+          Keys are stored locally in your browser's localStorage and never sent anywhere else except to Google's official Gemini API endpoint.
+        </small>
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 1.25rem;">
+        <button class="btn btn-outline" onclick="testGeminiConnection()">Test Connection</button>
+        <button class="btn btn-primary" style="flex: 1;" onclick="saveGeminiSettings()">Save Settings</button>
+      </div>
+      <div id="ai-settings-test-status" style="margin-top: 10px; font-size: 12px; text-align: center; font-weight: 500;"></div>
+    </div>
+  </div>
+
+  <!-- ======================================================
+     MAIN CONTENT
+====================================================== -->
+  <main>
+
+    <!-- ═══════════════════════════════════════════════════
+     PAGE: DASHBOARD
+═══════════════════════════════════════════════════ -->
+    <div class="page active" id="page-dashboard">
+      <div class="hero-section">
+        <div class="hero-inner">
+          <div class="hero-text">
+            <div class="hero-tag">🌿 Community Donation Platform</div>
+            <h1>Give food &amp; clothes<br>to those who <span class="accent">need it most</span></h1>
+            <p>Every meal and garment you donate goes directly to nearby NGOs. Fully tracked, verified, and transparent.
+            </p>
+            <div class="hero-btns">
+              <button class="btn btn-primary btn-lg" onclick="showPage('donate')">🤝 Start Donating</button>
+              <button class="btn btn-outline btn-lg" onclick="showPage('proof')">📊 View Impact</button>
+            </div>
+          </div>
+          <div class="hero-visual">
+            <div class="floating-card fc1">🍛 50 meals → Suchana Foundation <span class="fc-check">✓</span></div>
+            <div class="floating-card fc2">👗 30 clothes → Asha NGO <span class="fc-check">✓</span></div>
+            <div class="floating-card fc3">🚴 Partner en route <span class="fc-pulse">●</span></div>
+            
+          </div>
+        </div>
+      </div>
+
+      <!-- STATS BAR -->
+      <div class="stats-bar">
+        <div class="stat-card">
+          <div class="stat-num" id="stat-meals">0</div>
+          <div class="stat-lbl">Meals donated</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-clothes">0</div>
+          <div class="stat-lbl">Clothes donated</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-ngos">0</div>
+          <div class="stat-lbl">NGOs served</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-donors">0</div>
+          <div class="stat-lbl">Donors</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-partners">0</div>
+          <div class="stat-lbl">Delivery partners</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-cities">0</div>
+          <div class="stat-lbl">Cities</div>
+        </div>
+      </div>
+
+      <!-- ANALYTICS CHARTS -->
+      <div class="section">
+        <div class="section-label">Impact analytics</div>
+        <div class="charts-row">
+          <div class="chart-card">
+            <div class="chart-title">Monthly donations</div>
+            <canvas id="chart-monthly" width="340" height="180"></canvas>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">Donation types</div>
+            <canvas id="chart-types" width="200" height="180"></canvas>
+            <div class="donut-legend" id="donut-legend"></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">Deliveries over time</div>
+            <canvas id="chart-line" width="340" height="180"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECENT NOTIFICATION -->
+      <div class="section">
+        <div class="info-box success-box">
+          <span>✅</span>
+          <span>Donation #3 delivered to <strong>Suchana Foundation</strong>.
+            <a onclick="showPage('proof')" class="link-green">View proof →</a>
+          </span>
+        </div>
+
+        <!-- WHAT TO DONATE -->
+        <div class="section-label">What would you like to donate?</div>
+        <div class="donate-choice-grid">
+          <div class="donate-choice-card" onclick="startDonation('food')">
+            <div class="dc-icon">🍱</div>
+            <div class="dc-body">
+              <h3>Food</h3>
+              <p>Restaurant surplus, catering, or home-cooked meals</p>
+              <div class="dc-steps">
+                <span>Choose source</span><span>→</span>
+                <span>Set quantity</span><span>→</span>
+                <span>Upload proof</span><span>→</span>
+                <span>Assign NGO</span>
+              </div>
+            </div>
+            <div class="dc-arrow">→</div>
+            <div class="dc-badge">Most donated</div>
+          </div>
+          <div class="donate-choice-card" onclick="startDonation('clothes')">
+            <div class="dc-icon">👕</div>
+            <div class="dc-body">
+              <h3>Clothes</h3>
+              <p>New or used clothing — shirts, sarees, jackets, shoes</p>
+              <div class="dc-steps">
+                <span>New / Used</span><span>→</span>
+                <span>Count pieces</span><span>→</span>
+                <span>Upload photos</span><span>→</span>
+                <span>Assign NGO</span>
+              </div>
+            </div>
+            <div class="dc-arrow">→</div>
+          </div>
+        </div>
+
+        <!-- HISTORY -->
+        <div class="section-label" style="margin-top:2rem">My donation history</div>
+        <div id="donation-history"></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+     PAGE: DONATE (WIZARD)
+═══════════════════════════════════════════════════ -->
+    <div class="page" id="page-donate">
+      <div class="wizard-wrap">
+
+        <div class="wizard-header">
+          <h2 id="wizard-title">New Donation</h2>
+          <p id="wizard-sub" class="muted">Follow the steps below</p>
+        </div>
+
+        <!-- PROGRESS -->
+        <div class="progress-track">
+          <div class="progress-fill" id="prog-fill" style="width:16%"></div>
+        </div>
+        <div class="step-row" id="step-row"></div>
+
+        <!-- STEP PANELS -->
+
+        <!-- S1: Type -->
+        <div class="step-panel" id="sp-1">
+          <div class="wcard">
+            <h3>What would you like to donate?</h3>
+            <p class="muted">Choose a donation category</p>
+            <div class="opt-grid two-col">
+              <div class="opt-card" id="oc-food" onclick="pickType('food',this)">
+                <div class="oc-icon">🍱</div>
+                <h4>Food</h4>
+                <p>Meals &amp; groceries</p>
+              </div>
+              <div class="opt-card" id="oc-clothes" onclick="pickType('clothes',this)">
+                <div class="oc-icon">👕</div>
+                <h4>Clothes</h4>
+                <p>New or used clothing</p>
+              </div>
+            </div>
+            <div class="wiz-nav">
+              <button class="btn btn-outline" onclick="showPage('dashboard')">← Home</button>
+              <button class="btn btn-primary" id="s1-next" onclick="wStep(2)" disabled>Next →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- S2: Source/Category -->
+        <div class="step-panel hidden" id="sp-2">
+          <div class="wcard">
+            <h3 id="s2-title">Food source</h3>
+            <p class="muted" id="s2-sub">Where is the food from?</p>
+            <div class="opt-grid" id="s2-opts"></div>
+            <div class="wiz-nav">
+              <button class="btn btn-outline" onclick="wStep(1)">← Back</button>
+              <button class="btn btn-primary" onclick="wStep(3)">Next →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- S3: Quantity -->
+        <div class="step-panel hidden" id="sp-3">
+          <div class="wcard">
+            <h3 id="s3-title">Quantity</h3>
+            <p class="muted">How much are you donating?</p>
+            <div id="s3-body"></div>
+            <div class="wiz-nav">
+              <button class="btn btn-outline" onclick="wStep(2)">← Back</button>
+              <button class="btn btn-primary" onclick="wStep(4)">Next →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- S4: Proof Upload -->
+        <div class="step-panel hidden" id="sp-4">
+          <div class="wcard">
+            <h3 id="s4-title">Upload proof</h3>
+            <p class="muted" id="s4-sub">Photo or video of donation (required)</p>
+            <div class="upload-zone" id="upload-zone-main">
+              <input type="file" accept="image/*,video/*" multiple onchange="handleUpload(event,'proof-previews')">
+              <div class="uz-icon">📸</div>
+              <p>Tap to upload photo or video</p>
+              <small>JPG · PNG · MP4 supported · Saved locally on device</small>
+            </div>
+            <div class="preview-strip" id="proof-previews"></div>
+
+            <!-- AI Verification Panel -->
+            <div id="ai-verify-panel" class="ai-verify-box">
+              <div class="ai-header-row">
+                <div class="ai-title">🤖 <span id="ai-status-title">AI Authenticity Checker</span></div>
+                <div id="ai-status-badge" class="ai-badge badge-scan">Ready</div>
+              </div>
+              <div class="ai-body" id="ai-status-desc">
+                Please upload a photo of the items to verify authenticity.
+              </div>
+              <div class="ai-details" id="ai-details-list">
+                <!-- Details list items populated dynamically -->
+              </div>
+            </div>
+
+
+
+            <!-- Container (food only) -->
+            <div id="container-block" class="hidden" style="margin-top:1.5rem">
+              <div class="section-label">Container needed?</div>
+              <div class="opt-grid three-col" id="container-opts">
+                <div class="opt-card selected" onclick="pickContainer('none',this)">
+                  <div class="oc-icon">✅</div>
+                  <h4>No container</h4>
+                  <p>Food already packed</p>
+                </div>
+                <div class="opt-card" onclick="pickContainer('partner',this)">
+                  <div class="oc-icon">🚚</div>
+                  <h4>Partner brings</h4>
+                  <p>Partner arranges</p>
+                </div>
+                <div class="opt-card" onclick="pickContainer('donor',this)">
+                  <div class="oc-icon">🤲</div>
+                  <h4>I provide</h4>
+                  <p>Donor arranges</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="wiz-nav">
+              <button class="btn btn-outline" onclick="wStep(3)">← Back</button>
+              <button class="btn btn-primary" id="s4-next" onclick="wStep(5)">Next →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- S5: Address & NGO -->
+        <div class="step-panel hidden" id="sp-5">
+          <div class="wcard">
+            <h3>Address &amp; NGO</h3>
+            <p class="muted">Where should we collect from?</p>
+            <div class="form-group">
+              <label>Street address *</label>
+              <input type="text" id="f-street" placeholder="12 Park Street, Kolkata">
+            </div>
+            <div class="form-group">
+              <label>City / District *</label>
+              <input type="text" id="f-city" placeholder="Durgapur, West Bengal">
+            </div>
+            <div class="form-group">
+              <label>PIN code</label>
+              <input type="text" id="f-pin" placeholder="713201">
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="useMyLocation()" style="margin-bottom:1rem">📍 Use current
+              location</button>
+            <div class="map-mock">
+              <div class="map-pin-anim">📍</div>
+              <p>Durgapur, West Bengal</p>
+              <small>Tap "Use current location" to auto-fill</small>
+            </div>
+            <div class="section-label" style="margin-top:1.5rem">NGO preference</div>
+            <div class="ngo-choice-row">
+              <div class="ngo-opt selected" id="nopt-nearest" onclick="pickNGO('nearest',this)">
+                <div style="font-size:1.6rem">🏠</div>
+                <h4>Nearest NGO</h4>
+                <p>Auto-assigned</p>
+              </div>
+              <div class="ngo-opt" id="nopt-specific" onclick="pickNGO('specific',this)">
+                <div style="font-size:1.6rem">🎯</div>
+                <h4>Specific NGO</h4>
+                <p>Choose manually</p>
+              </div>
+            </div>
+            <div id="specific-ngo-select" class="hidden">
+              <div class="form-group" style="margin-top:1rem">
+                <label>Select NGO</label>
+                <select id="ngo-select">
+                  <option>Suchana Foundation</option>
+                  <option>Asha NGO</option>
+                  <option>HelpLine Trust</option>
+                  <option>Durgapur Care Center</option>
+                  <option>Burdwan Relief NGO</option>
+                </select>
+              </div>
+            </div>
+            <div class="wiz-nav">
+              <button class="btn btn-outline" onclick="wStep(4)">← Back</button>
+              <button class="btn btn-primary" onclick="findDeliveryPartner()">Find delivery partner →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- S6: Confirm -->
+        <div class="step-panel hidden" id="sp-6">
+          <div class="wcard">
+            <h3>Confirm &amp; Submit</h3>
+            <p class="muted">Review your donation before submitting</p>
+            <div class="confirm-grid" id="confirm-grid"></div>
+            <div class="info-box" style="margin:1.25rem 0">
+              <span>💾</span><span>Saved to SQLite DB on device. Delivery partner assigned from local database.</span>
+            </div>
+            <div class="partner-assigned-box" id="partner-box" style="display:none">
+              <div class="pa-icon">🚴</div>
+              <div>
+                <strong id="pa-name">Rahul Das</strong>
+                <p id="pa-info">2 km away · ★ 4.8 · 50 deliveries</p>
+              </div>
+              <span class="status-badge status-transit">Assigned</span>
+            </div>
+            <div class="wiz-nav">
+              <button class="btn btn-outline" onclick="wStep(5)">← Back</button>
+              <button class="btn btn-primary" onclick="submitDonation()">Confirm &amp; Submit ✓</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUCCESS -->
+        <div class="step-panel hidden" id="sp-success">
+          <div class="success-screen">
+            <div class="success-anim">✅</div>
+            <h2>Donation Submitted!</h2>
+            <p>Your donation has been recorded. A delivery partner will collect it soon and deliver to the NGO. You'll
+              get a notification once delivered.</p>
+            <div class="success-box-info" id="success-box-info"></div>
+            <div class="success-btns">
+              <button class="btn btn-primary" onclick="showPage('dashboard')">Back to Dashboard</button>
+              <button class="btn btn-outline" onclick="showPage('track')">Track Donation 🚚</button>
+              <button class="btn btn-outline" onclick="showPage('proof')">View All Proof</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+     PAGE: PROOF / VERIFIED DELIVERIES
+═══════════════════════════════════════════════════ -->
+    <div class="page" id="page-proof">
+      <div class="section">
+        <div class="page-banner">
+          <h2>Verified Deliveries</h2>
+          <p>Real proof from donors &amp; partners — every delivery documented &amp; verified for transparency</p>
+          <div class="banner-stats">
+            <span>📦 <strong id="pb-total">8</strong> total deliveries</span>
+            <span>🍱 <strong id="pb-food">5</strong> food</span>
+            <span>👕 <strong id="pb-clothes">3</strong> clothes</span>
+          </div>
+        </div>
+
+        <div class="filter-row">
+          <button class="filter-btn active" onclick="filterProof('all',this)">All</button>
+          <button class="filter-btn" onclick="filterProof('food',this)">Food</button>
+          <button class="filter-btn" onclick="filterProof('clothes',this)">Clothes</button>
+          <button class="filter-btn" onclick="filterProof('recent',this)">Recent</button>
+        </div>
+
+        <div class="proof-grid" id="proof-grid"></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+     PAGE: JOBS
+═══════════════════════════════════════════════════ -->
+    <div class="page" id="page-jobs">
+      <div class="section">
+        <div class="page-banner">
+          <h2>Job Opportunities</h2>
+          <p>Apply for a role or refer a friend — help deliver food, coordinate NGOs, or volunteer online</p>
+        </div>
+        <div class="tab-bar">
+          <button class="tab-btn active" onclick="switchJobTab('all',this)">All Jobs</button>
+          <button class="tab-btn" onclick="switchJobTab('part-time',this)">Part-time</button>
+          <button class="tab-btn" onclick="switchJobTab('full-time',this)">Full-time</button>
+          <button class="tab-btn" onclick="switchJobTab('volunteer',this)">Volunteer</button>
+        </div>
+        <div class="jobs-grid" id="jobs-grid"></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+     PAGE: NGO ADMIN PANEL
+═══════════════════════════════════════════════════ -->
+    <div class="page" id="page-admin">
+      <div class="section">
+        <div class="page-banner">
+          <h2>🏢 NGO Admin Panel</h2>
+          <p>Manage incoming donations, assign partners, update delivery status</p>
+        </div>
+        <div class="admin-grid">
+          <div class="admin-sidebar">
+            <div class="admin-nav">
+              <button class="admin-nav-btn active" onclick="adminTab('incoming',this)">📥 Incoming</button>
+              <button class="admin-nav-btn" onclick="adminTab('partners',this)">🚴 Partners</button>
+              <button class="admin-nav-btn" onclick="adminTab('ngos',this)">🏠 NGOs</button>
+              <button class="admin-nav-btn" onclick="adminTab('database',this)">🗄️ Database</button>
+            </div>
+          </div>
+          <div class="admin-content" id="admin-content"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+     PAGE: TRACK
+═══════════════════════════════════════════════════ -->
+    <div class="page" id="page-track">
+      <div class="section">
+        <div class="page-banner">
+          <h2>🚚 Track Donations</h2>
+          <p>Real-time status of your donations and deliveries</p>
+        </div>
+        <div class="track-search">
+          <input type="text" id="track-input" placeholder="Enter donation ID (e.g. BAN-001)">
+          <button class="btn btn-primary" onclick="trackDonation()">Track →</button>
+        </div>
+        <div id="track-result" class="hidden"></div>
+        <div class="section-label" style="margin-top:2rem">All active donations</div>
+        <div id="track-list"></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+     PAGE: AUTHENTICATION (LOGIN & REGISTRATION)
+     ═══════════════════════════════════════════════════ -->
+    <div class="page" id="page-auth">
+      <div class="auth-wrapper">
+        <div class="auth-card">
+          <div class="auth-tabs">
+            <button class="auth-tab active" id="btn-login-tab" onclick="switchAuthTab('login', this)">Log In</button>
+            <button class="auth-tab" id="btn-register-tab" onclick="switchAuthTab('register', this)">Create
+              Account</button>
+          </div>
+
+          <!-- LOGIN FORM -->
+          <div id="auth-login-view">
+            <h2 style="text-align:center;margin-bottom:1.5rem">Welcome Back 🌿</h2>
+            <div class="form-group">
+              <label>Email Address or Phone Number</label>
+              <div class="input-with-icon">
+                <span class="input-icon">✉️</span>
+                <input type="text" id="login-identifier" placeholder="your@email.com or 10-digit phone">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Password</label>
+              <div class="input-with-icon">
+                <span class="input-icon">🔒</span>
+                <input type="password" id="login-password" placeholder="••••••••">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Select Your Role</label>
+              <div class="role-cards-grid" id="login-role-grid">
+                <div class="role-select-card selected" onclick="pickAuthRole('user', this, 'login')">
+                  <span class="r-icon">🤝</span>
+                  <span class="r-label">Donor</span>
+                </div>
+                <div class="role-select-card" onclick="pickAuthRole('ngo', this, 'login')">
+                  <span class="r-icon">🏢</span>
+                  <span class="r-label">NGO Panel</span>
+                </div>
+                <div class="role-select-card" onclick="pickAuthRole('delivery', this, 'login')">
+                  <span class="r-icon">🚴</span>
+                  <span class="r-label">Delivery Partner</span>
+                </div>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-full btn-lg" onclick="handleAuthLogin()">Log In →</button>
+            <p class="auth-switch-text">Don't have an account? <a onclick="switchToTab('register')"
+                class="link-green">Sign up here</a></p>
+          </div>
+
+          <!-- REGISTER FORM -->
+          <div id="auth-register-view" class="hidden">
+            <h2 style="text-align:center;margin-bottom:1.5rem">Join Give & Grow 🍃</h2>
+            <div class="form-group">
+              <label>Full Name *</label>
+              <div class="input-with-icon">
+                <span class="input-icon">👤</span>
+                <input type="text" id="reg-name" placeholder="John Doe">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Email Address *</label>
+              <div class="input-with-icon">
+                <span class="input-icon">✉️</span>
+                <input type="email" id="reg-email" placeholder="john@example.com">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Phone Number *</label>
+              <div class="input-with-icon">
+                <span class="input-icon">📞</span>
+                <input type="tel" id="reg-phone" placeholder="9876543210">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Password *</label>
+              <div class="input-with-icon">
+                <span class="input-icon">🔒</span>
+                <input type="password" id="reg-password" placeholder="••••••••">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Register As *</label>
+              <div class="role-cards-grid" id="reg-role-grid">
+                <div class="role-select-card selected" onclick="pickAuthRole('user', this, 'reg')">
+                  <span class="r-icon">🤝</span>
+                  <span class="r-label">Donor</span>
+                </div>
+                <div class="role-select-card" onclick="pickAuthRole('ngo', this, 'reg')">
+                  <span class="r-icon">🏢</span>
+                  <span class="r-label">NGO Panel</span>
+                </div>
+                <div class="role-select-card" onclick="pickAuthRole('delivery', this, 'reg')">
+                  <span class="r-icon">🚴</span>
+                  <span class="r-label">Delivery Partner</span>
+                </div>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-full btn-lg" onclick="handleAuthRegister()">Create Account →</button>
+            <p class="auth-switch-text">Already have an account? <a onclick="switchToTab('login')"
+                class="link-green">Log in here</a></p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+     PAGE: DELIVERY PARTNER PANEL (ZOMATO/SWIGGY)
+     ═══════════════════════════════════════════════════ -->
+    <div class="page" id="page-delivery">
+      <div class="section">
+        <div class="page-banner" style="margin-bottom:1.5rem;">
+          <h2>🚴 Give & Grow Partner Panel</h2>
+          <p>Native Mobile Smartphone Simulator running Give & Grow Delivery HUD</p>
+        </div>
+
+        <div class="delivery-grid">
+          <!-- SIDEBAR STATS -->
+          <div class="delivery-profile-card">
+            <div class="dp-avatar">🚴</div>
+            <h3 id="dp-profile-name">Rahul Das</h3>
+            <p class="muted" style="font-size:12px;margin-top:2px;">Available Partner</p>
+
+            <div class="dp-stat-row">
+              <div class="dp-stat-box">
+                <div class="dp-stat-val" id="dp-stat-deliveries">0</div>
+                <div class="dp-stat-lbl">Deliveries</div>
+              </div>
+              <div class="dp-stat-box">
+                <div class="dp-stat-val" id="dp-stat-rating">★ 5.0</div>
+                <div class="dp-stat-lbl">Rating</div>
+              </div>
+            </div>
+
+            <div class="dp-stat-box" style="margin-top:10px;">
+              <div class="dp-stat-val" style="color:var(--amber);">₹250.00</div>
+              <div class="dp-stat-lbl">Today's Earnings</div>
+            </div>
+          </div>
+
+          <!-- MOBILE PHONE SIMULATOR CONTAINER -->
+          <div style="display:flex; justify-content:center; align-items:center;">
+            <div class="zomato-phone">
+              <div class="phone-notch"></div>
+              <div class="phone-screen" id="phone-screen-container">
+                <!-- Rendered by JS dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MOCK SMARTPHONE CALL OVERLAY MODAL -->
+    <div class="modal-overlay" id="modal-mock-call">
+      <div class="caller-screen">
+        <div class="caller-avatar" id="call-avatar-emoji">👤</div>
+        <h2 id="caller-name">Donor</h2>
+        <p class="caller-role" id="call-subtitle">Incoming Call...</p>
+        <div class="caller-visualizer">
+          <div class="c-ring"></div>
+          <div class="c-ring delay1"></div>
+          <div class="c-ring delay2"></div>
+        </div>
+        <div class="caller-actions">
+          <button class="call-btn btn-call-red" onclick="endMockCall()" title="Decline Call">✖</button>
+          <button class="call-btn btn-call-green" id="btn-call-accept" onclick="answerMockCall()"
+            title="Answer Call">📞</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="leaf" style="width:32px;height:32px;font-size:16px">🍃</div>
+        <div><strong>Give & Grow</strong><small>Free food &amp; clothes for everyone</small></div>
+      </div>
+      <div class="footer-links">
+        <span onclick="showPage('dashboard')">Home</span>
+        <span onclick="showPage('donate')">Donate</span>
+        <span onclick="showPage('proof')">Proof</span>
+        <span onclick="showPage('jobs')">Jobs</span>
+      </div>
+      <div class="footer-copy">
+        © 2025 Give & Grow · Final Year Engineering Project · Built for social good
+      </div>
+    </div>
+  </footer>
+
+  <script src="db.js"></script>
+  <script src="utils.js"></script>
+  <script src="index.js"></script>
+</body>
+
+</html>
